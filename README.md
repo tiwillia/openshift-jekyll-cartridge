@@ -2,13 +2,13 @@
 
 Pretty much everything seems to be working fine, but it can still use some testing.  
 
-If you find any issues, please log them in the [issues](https://github.com/developercorey/openshift-jekyll-cartridge/issues) section of the [github](https://github.com/developercorey/openshift-jekyll-cartridge) project.  
+If you find any issues, please log them in the [issues](https://github.com/openshift-cartridges/openshift-jekyll-cartridge/issues) section of the [github](https://github.com/openshift-cartridges/openshift-jekyll-cartridge) project.  
 
 ###How to use this cartridge
 
 1.)  Create a new application on OpenShift using this command:  
 
-    rhc app create jekyll https://raw.github.com/developercorey/openshift-jekyll-cartridge/master/metadata/manifest.yml  
+    rhc app create jekyll https://raw.github.com/openshift-cartridges/openshift-jekyll-cartridge/master/metadata/manifest.yml  
     
 2.)  Git clone the repository that is associated with your OpenShift gear to your local machine  (the create command should do this for you)  
 3.)  Change directory (cd) into the cloned repository and run the following commands (you can also use bundle install to install the gems from the Gemfile)
