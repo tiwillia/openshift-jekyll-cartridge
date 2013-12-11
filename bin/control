@@ -1,0 +1,116 @@
+#!/bin/bash -e
+
+source $OPENSHIFT_CARTRIDGE_SDK_BASH
+
+cartridge_type="jekyll"
+
+
+# Check if the wildfly process is running
+function isrunning() {
+
+    # Check for running app
+    if [ -f "$JEKYLL_PID_FILE" ]; then
+      jpid=$(cat $JEKYLL_PID_FILE);
+      if /bin/ps --pid $jpid 1>&2 >/dev/null;
+      then
+        return 0
+      fi
+    fi
+
+    return 1
+}
+
+# Check if the server http port is up
+function ishttpup() {
+    let count=0
+    while [ ${count} -lt 64 ]
+    do
+        if /usr/sbin/lsof -P -n -i "@${OPENSHIFT_JEKYLL_IP}:${OPENSHIFT_JEKYLL_HTTP_PORT}" | grep "(LISTEN)" > /dev/null; then
+            echo "Found ${OPENSHIFT_JEKYLL_IP}:${OPENSHIFT_JEKYLL_HTTP_PORT} listening port"
+            return 0
+        fi
+        let count=${count}+1
+
+        sleep 2
+    done
+
+    return 1
+}
+
+
+
+function start() {
+  echo "Starting $cartridge_type cart"
+
+  # Check for running app
+  if isrunning; then
+      echo "Application is already running"
+  else    
+	#${WILDFLY_BIN_DIR}/standalone.sh -b $OPENSHIFT_WILDFLY_IP -bmanagement=$OPENSHIFT_WILDFLY_IP > $OPENSHIFT_WILDFLY_DIR/logs/server.log 2>&1 &  
+	cd ${OPENSHIFT_JEKYLL_DIR} && bundle exec jekyll --source ${OPENSHIFT_REPO_DIR} --destination ${OPENSHIFT_REPO_DIR} serve --port ${OPENSHIFT_JEKYLL_HTTP_PORT} --host ${OPENSHIFT_JEKYLL_IP} > ${OPENSHIFT_JEKYLL_DIR}/logs/server.log 2>&1 &
+    PROCESS_ID=$!
+    echo "$PROCESS_ID" > $JEKYLL_PID_FILE}
+
+    if ! ishttpup; then
+        echo "Timed out waiting for http listening port"
+        exit 1
+    fi
+
+    waitondeployments
+  fi
+}
+
+
+function stop() {
+  echo "Stopping $cartridge_type cart"
+
+  if isrunning; then
+    if [ -f "$JEKYLL_PID_FILE" ]; then
+      pid=$(cat $JEKYLL_PID_FILE);
+      echo "Sending SIGTERM to wildfly:$pid ..." 1>&2
+      killtree $pid
+    else
+      echo "Failed to locate Wildfly PID File" 1>&2
+    fi
+  fi
+}
+
+function restart() {
+    echo "Restarting $cartridge_type cart"
+
+    stop
+
+    start
+}
+
+function status() {
+   if isrunning
+   then
+      client_result "Application is running"
+   else
+      client_result "Application is either stopped or inaccessible"
+   fi
+}
+
+function reload() {
+    echo "Reloading $cartridge_type cart"
+    restart
+}
+
+# Clean up any log files
+function tidy() {
+  client_message "Emptying log dir: $OPENSHIFT_JEKYLL_LOG_DIR"
+  shopt -s dotglob
+  rm -rf $OPENSHIFT_JEKYLL_LOG_DIR/*
+}
+
+case "$1" in
+  start)           start ;;
+  stop)            stop ;;
+  restart)         restart ;;
+  status)          status ;;
+  reload)          reload ;;
+  tidy)            tidy ;;
+  *)               exit 0
+esac
+

@@ -1,0 +1,5 @@
+#!/bin/bash -eu
+
+cd {$OPENSHIFT_JEKYLL_DIR} && bundle install
+mkdir {$OPENSHIFT_JEKYLL_DIR}/logs
+
