@@ -49,7 +49,7 @@ function start() {
 	  export BUNDLE_GEMFILE=${OPENSHIFT_REPO_DIR}Gemfile
 	cd ${OPENSHIFT_REPO_DIR}
 	echo "Executing bundle install"
-	/usr/bin/scl enable ruby193 "bundle install"
+	bundle install
 	echo "Starting Jekyll server"
 	bundle exec jekyll serve --port ${OPENSHIFT_JEKYLL_HTTP_PORT} --host ${OPENSHIFT_JEKYLL_IP} > ${OPENSHIFT_JEKYLL_DIR}/logs/server.log 2>&1 &
 
