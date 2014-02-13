@@ -8,7 +8,7 @@ License-Url: http://www.gnu.org/copyleft/lesser.txt
 Vendor: Jekyll
 Cartridge-Version: '0.0.1'
 Cartridge-Vendor: developercorey
-Source-Url: https://github.com/openshift-cartridges/openshift-jekyll-cartridge.git
+Source-Url: https://github.com/tiwillia/openshift-jekyll-cartridge.git
 Categories:
   - web_framework
 Website: http://www.jekyllrb.com
